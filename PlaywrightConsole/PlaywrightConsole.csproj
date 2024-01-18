@@ -13,6 +13,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Playwright" Version="1.41.0" />
+		<PackageReference Include="Otp.NET" Version="1.3.0" />
 	</ItemGroup>
 
 </Project>

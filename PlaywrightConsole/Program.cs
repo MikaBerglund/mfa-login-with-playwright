@@ -12,6 +12,7 @@
 // This sample application assumes that you specify 3 command line
 // arguments when calling the application.
 using Microsoft.Playwright;
+using OtpNet;
 
 var username = args[0];
 var password = args[1];
@@ -49,6 +50,7 @@ var loginInputSelector = "input[type=email]";
 var passwordInputSelector = "input[type=password]";
 var submitSelector = "input[type=submit]";
 var otpInputSelector = "input[name=otc]";
+var kmsiCheckboxSelector = "#KmsiCheckboxField";
 //---------------------------------------------------------------------
 
 //---------------------------------------------------------------------
@@ -83,18 +85,24 @@ await page.Locator(passwordInputSelector)
 // Now we need to examine whether we need to do MFA or not. We do this
 // by looking for two different elements, and which ever is found first
 // determines whether MFA is required or not.
-// If the element that is found first is yet another submit button,
-// then we don't need MFA, and the submit button is the final "Yes"
-// button on the keep me signed in page.
+// If the element that is found first is the "Don't show this again"
+// checkbox on the Keep me signed in page, then we don't need MFA, and
+// the submit button is the final "Yes" button on the keep me signed
+// in page.
+// 
 // But, if the first element is the one-time code input field, then
 // we need to create a one-time password using the MFA secret.
 var waiterIndex = Task.WaitAny(
     page.WaitForSelectorAsync(otpInputSelector),
-    page.WaitForSelectorAsync(submitSelector)
+    page.WaitForSelectorAsync(kmsiCheckboxSelector)
 );
 
 if(waiterIndex == 0)
 {
+    var totp = new Totp(Base32Encoding.ToBytes(mfaSecret));
+    var otp = totp.ComputeTotp();
+    await page.FillAsync(otpInputSelector, otp);
+    await page.ClickAsync(submitSelector);
 
     // Wait until the OTP input box has been removed from the DOM.
     await page.Locator(otpInputSelector)
