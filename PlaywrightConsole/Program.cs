@@ -20,7 +20,8 @@ var mfaSecret = args[2];
 //---------------------------------------------------------------------
 
 //---------------------------------------------------------------------
-/*
+/* Initialize Objects
+ * 
  * Create the necessary objects we need to start running browser
  * automation. Please feel free to play around with the settings below
  * to find what you need. There's a lot to configure, but to keep
@@ -39,12 +40,16 @@ var page = await context.NewPageAsync();
 await page.EmulateMediaAsync(new PageEmulateMediaOptions { Media = Media.Screen });
 //---------------------------------------------------------------------
 
-var portalUrl = "https://www.microsoft365.com";
+//---------------------------------------------------------------------
+// Navigate to Application
 
 // Start off by navigating to the portal and force us to log in.
-await page.GotoAsync($"{portalUrl}/login");
+await page.GotoAsync("https://www.microsoft365.com/login");
+//---------------------------------------------------------------------
 
 //---------------------------------------------------------------------
+// Define Common Selectors
+
 // Here we just define some commonly used CSS selectors.
 var loginInputSelector = "input[type=email]";
 var passwordInputSelector = "input[type=password]";
@@ -54,6 +59,8 @@ var kmsiCheckboxSelector = "#KmsiCheckboxField";
 //---------------------------------------------------------------------
 
 //---------------------------------------------------------------------
+// Provide Username and Password
+
 // Next we fill in the user name and passwords. Whenever we start a
 // new browser context, we can rely on the fact that there are no
 // cookies from a previous session, so we don't have to deal with
@@ -82,6 +89,8 @@ await page.Locator(passwordInputSelector)
 //---------------------------------------------------------------------
 
 //---------------------------------------------------------------------
+// Handle MFA Login
+
 // Now we need to examine whether we need to do MFA or not. We do this
 // by looking for two different elements, and which ever is found first
 // determines whether MFA is required or not.
@@ -111,6 +120,8 @@ if(waiterIndex == 0)
 //---------------------------------------------------------------------
 
 //---------------------------------------------------------------------
+// Keep Me Signed In
+
 // Now just finally click the "Yes" button on the Keep me signed page.
 await page.ClickAsync(submitSelector);
 //---------------------------------------------------------------------
